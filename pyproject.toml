@@ -1,0 +1,16 @@
+[project]
+name = "duckdb-pyappender"
+version = "0.1.0"
+description = "A DuckDB appender for Python"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "duckdb>=1.1.2",
+]
+
+[dependency-groups]
+dev = [
+    "black>=24.10.0",
+    "pytest>=8.3.3",
+    "pytz>=2024.2",
+]
