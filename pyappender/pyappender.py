@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+import datetime
+import json
 import logging
 import os
 import time
@@ -12,6 +14,7 @@ from pyappender.errors import (
     AppendAfterCloseError,
     AppenderDoubleCloseError,
     ColumnCountError,
+    TableNotFoundError,
 )
 
 logger = logging.getLogger(__name__)
@@ -41,9 +44,10 @@ class SQLiteBuffer:
         self._conn = sqlite3.connect(self.db_filepath)
         self._cur = self._conn.cursor()
 
-        self.create_table(table_schema)
+        self._create_table(table_schema)
+        self._resister_adapters()
 
-    def create_table(self, schema: TableSchema) -> None:
+    def _create_table(self, schema: TableSchema) -> None:
         self._cur.execute(f"DROP TABLE IF EXISTS {schema.table_name}")
 
         self._cur.execute(
@@ -56,6 +60,21 @@ class SQLiteBuffer:
         self._conn.commit()
 
         self.table = schema.table_name
+
+    def _resister_adapters(self) -> None:
+        """Register the adapter for non-native SQLite types.
+        Ref: https://docs.python.org/3/library/sqlite3.html#how-to-adapt-custom-python-types-to-sqlite-values
+        """
+        sqlite3.register_adapter(uuid.UUID, lambda u: u.hex)
+        sqlite3.register_adapter(datetime.date, lambda d: d.isoformat())
+        sqlite3.register_adapter(datetime.datetime, lambda t: t.isoformat())
+
+        def adapt_list(lst):
+            if type(lst[0]) == str:
+                return f"[{', '.join(lst)}]"
+            return f"[{', '.join([str(i) for i in lst])}]"
+
+        sqlite3.register_adapter(list, adapt_list)
 
     def append_row(self, row: list) -> None:
         if len(row) != len(self.table_schema.column_names):
@@ -106,6 +125,7 @@ class Appender:
 
         # Mirror the duckdb table into sqlite
         table_schema = self._get_duckdb_table_schema()
+        table_schema = _convert_duckdb_to_sqlite_schema(table_schema)
         self.buffer = SQLiteBuffer(table, table_schema)
 
     def append_row(self, row: list) -> None:
@@ -164,7 +184,6 @@ class Appender:
         Note: This only set the timezone per session, so it won't affect global setting.
         """
         self.conn.execute("SET timezone='UTC';")
-        pass
 
     def _get_duckdb_table_schema(self) -> TableSchema:
         rows = self.conn.execute(
@@ -193,3 +212,16 @@ class Appender:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
+
+
+def _convert_duckdb_to_sqlite_schema(schema: TableSchema):
+    new_column_types = []
+    for t in schema.column_types:
+        if t.endswith("[]"):
+            # SQLite doesn't support list/array types, so default to VARCHAR
+            sqlite_type = "VARCHAR"
+        else:
+            sqlite_type = t
+        new_column_types.append(sqlite_type)
+
+    return TableSchema(schema.table_name, schema.column_names, new_column_types)

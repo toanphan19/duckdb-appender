@@ -181,17 +181,34 @@ class TestAppender:
         conn.execute("CREATE TABLE test (data BLOB);")
         conn.commit()
 
-        raise NotImplementedError()
+        appender = Appender(conn, "main", "test")
+        appender.append_row([b"hello world"])
+        appender.close()
+
+        assert conn.execute("SELECT * FROM test").fetchone() == (b"hello world",)
 
     def test_append_row_list(self):
         """List type in DuckDB is similar to Postgres' ARRAY type.
         Ref: https://duckdb.org/docs/sql/data_types/list
         """
         conn = duckdb.connect()
-        conn.execute("CREATE TABLE test (string_list VARCHAR[], int_list INTEGER[]);")
+        conn.execute("CREATE TABLE test (string_list VARCHAR[]);")
         conn.commit()
 
-        raise NotImplementedError()
+        appender = Appender(conn, "main", "test")
+        string_array = ["a1", "b2", "ccc"]
+        appender.append_row([string_array])
+        appender.close()
+        assert conn.execute("SELECT * FROM test").fetchone() == (string_array,)
+
+        conn = duckdb.connect()
+        conn.execute("CREATE TABLE test (int_list INTEGER[]);")
+        conn.commit()
+
+        appender = Appender(conn, "main", "test")
+        appender.append_row([[1, 2, 3]])
+        appender.close()
+        assert conn.execute("SELECT * FROM test").fetchone() == ([1, 2, 3],)
 
     def test_append_row_array(self):
         """Array type is usually used for vectors/embeddings.
@@ -202,10 +219,10 @@ class TestAppender:
         conn.commit()
 
         appender = Appender(conn, "main", "test")
-        string_array = ["a", "b", "c"]
+        string_array = ["a1", "b2", "ccc"]
         appender.append_row([string_array])
         appender.close()
-        assert conn.execute("SELECT * FROM test").fetchone() == (string_array,)
+        assert conn.execute("SELECT * FROM test").fetchone() == (tuple(string_array),)
 
     def test_auto_flush(self):
         conn = duckdb.connect()
