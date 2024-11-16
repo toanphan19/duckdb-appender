@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 import datetime
-import json
 import logging
 import os
 import time
 
 import sqlite3
+from typing import Any, Collection
 import duckdb
 import uuid
 
@@ -76,7 +76,7 @@ class SQLiteBuffer:
 
         sqlite3.register_adapter(list, adapt_list)
 
-    def append_row(self, row: list) -> None:
+    def append_row(self, row: Collection) -> None:
         if len(row) != len(self.table_schema.column_names):
             raise ColumnCountError(len(self.table_schema.column_names), len(row))
 
@@ -128,7 +128,7 @@ class Appender:
         table_schema = _convert_duckdb_to_sqlite_schema(table_schema)
         self.buffer = SQLiteBuffer(table, table_schema)
 
-    def append_row(self, row: list) -> None:
+    def append_row(self, row: Collection[Any]) -> None:
         if self.closed:
             raise AppendAfterCloseError()
 
@@ -210,7 +210,7 @@ class Appender:
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, type, value, traceback):
         self.close()
 
 

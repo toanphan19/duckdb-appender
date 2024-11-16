@@ -235,3 +235,20 @@ class TestAppender:
         assert conn.execute("SELECT count(*) FROM test").fetchone() == (
             DEFAUT_AUTOCOMMIT_ROW_COUNT * 2,
         )
+
+
+class TestAppenderDifferentUseCases:
+
+    def test_append_row(self):
+        """Should support tuples, arrays, and dict.values() as the input parameter."""
+        conn = duckdb.connect()
+        conn.execute("CREATE TABLE test (i INTEGER);")
+        conn.commit()
+
+        appender = Appender(conn, "main", "test")
+        appender.append_row((1,))
+        appender.append_row([2])
+        appender.append_row({"i": 3}.values())
+        appender.close()
+
+        assert conn.execute("SELECT count(i) FROM test").fetchone() == (3,)
