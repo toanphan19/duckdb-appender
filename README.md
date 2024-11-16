@@ -19,6 +19,13 @@ with Appender(conn, schema="main", table="users") as appender:
 
 See more in the `/examles` folder.
 
+## Why use this
+
+- Much faster than simple INSERT statements.
+- Versus storing data in a pandas DataFrame and load into DuckDB: while pandas loads the entire dataset into memory, this appender uses SQLite as a buffer that regularly flush itself (every 204,800 rows, similar to the official C++ appender)
+  - This prevents memory overload on large data aggregation.
+  - A little bit of crash protection - since it commits data every 204,800 rows, you'll preserve most of your progress if something goes wrong.
+
 ## Local development
 
 This repo uses [uv](https://github.com/astral-sh/uv) to manage dependencies and
