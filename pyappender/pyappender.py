@@ -70,7 +70,7 @@ class SQLiteBuffer:
         sqlite3.register_adapter(datetime.datetime, lambda t: t.isoformat())
 
         def adapt_list(lst):
-            if type(lst[0]) == str:
+            if type(lst[0]) is str:
                 return f"[{', '.join(lst)}]"
             return f"[{', '.join([str(i) for i in lst])}]"
 
@@ -187,7 +187,7 @@ class Appender:
 
     def _get_duckdb_table_schema(self) -> TableSchema:
         rows = self.conn.execute(
-            f"""SELECT column_name, data_type 
+            """SELECT column_name, data_type 
                     FROM information_schema.columns 
                     WHERE table_schema = ?
                         AND table_name = ?

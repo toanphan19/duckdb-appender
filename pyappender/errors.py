@@ -1,4 +1,3 @@
-
 class TableNotFoundError(Exception):
     """Cannot find the table in DuckDB"""
 
@@ -10,11 +9,8 @@ class ColumnCountError(Exception):
 
 
 class AppendAfterCloseError(Exception):
-    """"Cannot append after having closed the appender"""
-    pass
+    """Cannot append after having closed the appender"""
 
 
 class AppenderDoubleCloseError(Exception):
     """The appender is already closed"""
-    pass
-
