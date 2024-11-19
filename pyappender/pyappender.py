@@ -1,15 +1,14 @@
-from dataclasses import dataclass
 import datetime
 import logging
 import os
 import time
+from dataclasses import dataclass
 
 import sqlite3
 from typing import Any, Collection
 import duckdb
 import uuid
 
-from pyappender import constants
 from pyappender.errors import (
     AppendAfterCloseError,
     AppenderDoubleCloseError,
@@ -115,11 +114,30 @@ class Appender:
     closed: bool = False
 
     buffer: SQLiteBuffer
+    auto_commit_freq: int
 
-    def __init__(self, conn: duckdb.DuckDBPyConnection, schema: str, table: str):
+    def __init__(
+        self,
+        conn: duckdb.DuckDBPyConnection,
+        schema: str,
+        table: str,
+        auto_commit_freq=204_800,
+    ):
+        """A DuckDB appender.
+
+        Params:
+            - `conn`: a standard DuckDB connection.
+            - `schema`: the name of the database schema where the target table is located.
+            DuckDB's default schema is `main`.
+            - `table`: the name of the target table to insert into.
+            - `auto_commit_freq`: the number of rows to automatically commit to DuckDB.
+            Should not be set lower than `100` to avoid degrading performance. Default
+            is 204,800 rows.
+        """
         self.conn = conn
-        self.schema = schema
+        self.schema = schema if schema else "main"
         self.table = table
+        self.auto_commit_freq = auto_commit_freq
 
         self._config_duckdb_session()
 
@@ -136,7 +154,7 @@ class Appender:
 
         # If the buffer reaches autocommit limit, flush it to duckdb and create a new
         # buffer
-        if self.buffer.row_count >= constants.DEFAUT_AUTOCOMMIT_ROW_COUNT:
+        if self.buffer.row_count >= self.auto_commit_freq:
             self.flush()
             new_buffer = SQLiteBuffer(self.buffer.table, self.buffer.table_schema)
             self.buffer.close()

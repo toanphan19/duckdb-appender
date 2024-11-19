@@ -6,7 +6,6 @@ import pytest
 import pytz
 
 from pyappender import Appender
-from pyappender.constants import DEFAUT_AUTOCOMMIT_ROW_COUNT
 from pyappender.pyappender import (
     SQLiteBuffer,
     TableSchema,
@@ -229,12 +228,10 @@ class TestAppender:
         conn.execute("CREATE TABLE test (i INTEGER);")
         conn.commit()
 
-        appender = Appender(conn, "main", "test")
-        for _ in range(DEFAUT_AUTOCOMMIT_ROW_COUNT * 2 + 100):
+        appender = Appender(conn, "main", "test", 2000)
+        for _ in range(4500):
             appender.append_row([1])
-        assert conn.execute("SELECT count(*) FROM test").fetchone() == (
-            DEFAUT_AUTOCOMMIT_ROW_COUNT * 2,
-        )
+        assert conn.execute("SELECT count(*) FROM test").fetchone() == (4000,)
 
 
 class TestAppenderDifferentUseCases:
