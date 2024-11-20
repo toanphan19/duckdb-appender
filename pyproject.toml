@@ -1,7 +1,9 @@
 [project]
 name = "duckdb-appender"
 version = "0.2.0"
-author = "Toan Phan"
+authors = [
+    {name = "Toan Phan", email = "toanphan.dev@gmail.com"},
+]
 description = "A DuckDB appender for Python"
 readme = "README.md"
 requires-python = ">=3.9"
