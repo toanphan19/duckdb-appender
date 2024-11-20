@@ -1,11 +1,12 @@
 [project]
-name = "duckdb-pyappender"
+name = "duckdb-appender"
 version = "0.2.0"
+author = "Toan Phan"
 description = "A DuckDB appender for Python"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "duckdb>=1.1.2",
+    "duckdb>=1.0.0",
 ]
 
 [dependency-groups]

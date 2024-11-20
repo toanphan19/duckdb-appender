@@ -5,8 +5,8 @@ import duckdb
 import pytest
 import pytz
 
-from pyappender import Appender
-from pyappender.pyappender import (
+from appender import Appender
+from appender.appender import (
     SQLiteBuffer,
     TableSchema,
 )
