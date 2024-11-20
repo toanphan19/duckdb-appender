@@ -1,6 +1,6 @@
 import duckdb
 
-from pyappender import Appender
+from duckdb_appender import Appender
 
 if __name__ == "__main__":
     # Set up the source DuckDB table

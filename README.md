@@ -1,10 +1,15 @@
 # DuckDB PyAppender
 
-A DuckDB appender for Python.
+A [DuckDB appender](https://duckdb.org/docs/data/overview#appender) for Python.
+
+## Installation
 
 ## Usage
 
 ```py
+import duckdb
+from duckdb_appender import Appender
+
 conn = duckdb.connect()
 
 appender = Appender(conn, schema="main", table="users")
@@ -17,7 +22,7 @@ with Appender(conn, schema="main", table="users") as appender:
   appender.append_row([3, "foo"])
 ```
 
-See more in the `/examles` folder.
+See more in the `/examples` folder.
 
 ## Why use this
 

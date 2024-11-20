@@ -46,8 +46,7 @@ jobs:
     # Dedicated environments with protections for publishing are strongly recommended.
     environment:
       name: pypi
-      # OPTIONAL: include your PyPI project URL in the deployment status:
-      # url: https://pypi.org/p/YOURPROJECT
+      url: https://pypi.org/project/duckdb-appender
 
     steps:
       - name: Retrieve release distributions
