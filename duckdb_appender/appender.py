@@ -9,7 +9,7 @@ from typing import Any, Collection
 import duckdb
 import uuid
 
-from appender.errors import (
+from duckdb_appender.errors import (
     AppendAfterCloseError,
     AppenderDoubleCloseError,
     ColumnCountError,

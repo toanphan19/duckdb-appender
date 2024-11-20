@@ -1,13 +1,13 @@
 import duckdb
 import pytest
 
-from appender.errors import (
+from duckdb_appender.errors import (
     AppendAfterCloseError,
     AppenderDoubleCloseError,
     TableNotFoundError,
     ColumnCountError,
 )
-from appender.appender import Appender
+from duckdb_appender.appender import Appender
 
 
 TEST_DB = "test/test.duckdb"

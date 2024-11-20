@@ -2,11 +2,10 @@ import datetime
 import decimal
 import uuid
 import duckdb
-import pytest
 import pytz
 
-from appender import Appender
-from appender.appender import (
+from duckdb_appender.appender import (
+    Appender,
     SQLiteBuffer,
     TableSchema,
 )
